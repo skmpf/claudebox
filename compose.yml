@@ -1,0 +1,19 @@
+services:
+  claudebox:
+    build: .
+    container_name: claudebox
+    tty: true
+    stdin_open: true
+    volumes:
+      - ${WORKSPACE_PATH}:/workspace
+      - claude-config:/home/appuser/.config/claude
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    restart: unless-stopped
+    command: tail -f /dev/null
+
+volumes:
+  claude-config:
+    driver: local
