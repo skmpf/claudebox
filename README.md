@@ -1,44 +1,56 @@
-# Claudebox
+# Claudebox 🐳
 
-Sandboxed Docker environment for Claude Code with workspace isolation.
+A secure, sandboxed Docker environment for running Claude Code with complete workspace isolation.
 
-Uses the pre-built Docker image `skmpf/claudebox:latest` from Docker Hub.
+> **Security**: Claude only has access to your mounted workspace directory - nothing else on your system.
 
-## Setup
+## Quick Start
 
-1. **Create `.env`** - Copy the `.env.example` and set your workspace path:
-
-   ```bash
-   cp .env.example .env
-   ```
-
-2. **Start container**:
-
-   ```bash
-   docker-compose up -d
-   ```
-
-3. **Login to Claude** (one-time):
-   ```bash
-   docker-compose exec claudebox claude auth login
-   ```
-
-## Usage
+### 1. Clone the Repository
 
 ```bash
-# Start the container
+git clone https://github.com/skmpf/claudebox.git
+cd claudebox
+```
+
+### 2. Configure Your Workspace
+
+Create your environment file and set your workspace path:
+
+```bash
+cp .env.example .env
+# Edit .env to set your WORKSPACE_PATH
+```
+
+### 3. Start the Container
+
+```bash
+docker-compose up -d
+```
+
+### 4. Start Using Claude
+
+```bash
+# Enter the container where Claude Code is available
+docker-compose exec claudebox claude
+```
+
+## Usage Commands
+
+```bash
+# Start the container in background
 docker-compose up -d
 
-# Get into the container shell where Claude Code is available
+# Enter interactive shell with Claude available
 docker-compose exec claudebox claude
 
-# Stop container
+# Stop the container
 docker-compose down
 ```
 
 ## Local Development
 
-To modify the image and build locally:
+Want to modify the container? You can build it locally:
 
 ```bash
 # Build your own image
@@ -48,10 +60,37 @@ docker-compose build
 # Replace 'image: skmpf/claudebox:latest' with 'build: .'
 ```
 
-## Files
+## Project Structure
 
-- `Dockerfile` - Container definition  
-- `compose.yml` - Service config
-- `.env` - Your workspace path
+```
+claudebox/
+├── Dockerfile           # Container definition
+├── compose.yml          # Docker Compose configuration
+├── .env.example         # Environment template
+├── .env                 # Your workspace configuration (created by you)
+├── .gitignore          # Git ignore rules
+├── .dockerignore       # Docker ignore rules
+└── README.md           # This file
+```
 
-Claude only has access to your workspace directory. Authentication persists between restarts.
+## How It Works
+
+- **Isolated Environment**: Claude runs in a Docker container with no access to your host system
+- **Workspace Mount**: Only your specified workspace directory is mounted and accessible
+- **Persistent Auth**: Claude authentication is stored in a Docker volume and persists between restarts
+
+## Troubleshooting
+
+**Container won't start?**
+
+- Check that Docker is running
+- Verify your `WORKSPACE_PATH` in `.env` exists and is accessible
+
+**Claude command not found?**
+
+- The container might still be starting up, wait a few seconds and try again
+- Try running `docker-compose exec claudebox bash` to get a shell and check if Claude is installed
+
+**Permission issues?**
+
+- Ensure your workspace directory has proper read/write permissions
