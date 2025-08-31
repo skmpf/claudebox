@@ -1,45 +1,27 @@
-FROM debian:bookworm-slim
+FROM node:22-alpine
 
 # Set environment variables
-ENV DEBIAN_FRONTEND=noninteractive
-ENV PNPM_HOME="/home/appuser/.local/share/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
+ENV PNPM_HOME="/home/appuser/.local/share/pnpm" \
+    PATH="/home/appuser/.local/share/pnpm:$PATH"
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    wget \
+RUN apk add --no-cache \
     git \
-    zsh \
-    ca-certificates \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    curl \
+    bash
 
-# Install Node.js 22 (latest LTS)
-RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
-    && apt-get install -y --no-install-recommends nodejs \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+# Create non-root user
+RUN adduser -D -s /bin/bash appuser \
+    && mkdir -p /workspace \
+    && chown -R appuser:appuser /workspace
 
-# Create non-root user first (before installing global packages)
-RUN adduser --disabled-password --gecos "" appuser
-
-# Switch to non-root user for pnpm installation
+# Switch to non-root user and install pnpm + Claude Code
 USER appuser
+RUN curl -fsSL https://get.pnpm.io/install.sh | bash
 
-# Install pnpm as the non-root user
-RUN curl -fsSL https://get.pnpm.io/install.sh | sh -
-
-# Add pnpm to PATH for current session and install Claude Code
 RUN $PNPM_HOME/pnpm add -g @anthropic-ai/claude-code
 
-# Create workspace directory
-USER root
-RUN mkdir -p /workspace && chown -R appuser:appuser /workspace
-
-# Switch back to non-root user
-USER appuser
 WORKDIR /workspace
 
-# Set the correct entrypoint path
-ENTRYPOINT ["/home/appuser/.local/share/pnpm/claude"]
+# Default command to keep container running
+CMD ["tail", "-f", "/dev/null"]

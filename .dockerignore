@@ -1,0 +1,16 @@
+# Don't copy environment files into the container
+.env
+.env.example
+
+# Don't copy git history
+.git
+
+# Don't copy documentation into the container
+README.md
+*.md
+
+# Don't copy macOS metadata
+.DS_Store
+
+# Don't copy Docker files
+.dockerignore

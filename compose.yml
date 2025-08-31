@@ -1,6 +1,6 @@
 services:
   claudebox:
-    build: .
+    image: skmpf/claudebox:latest
     container_name: claudebox
     tty: true
     stdin_open: true
